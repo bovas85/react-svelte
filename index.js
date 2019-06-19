@@ -1,32 +1,29 @@
-import * as React from 'react';
+import React from 'react'
 
-export default class SvelteComponent extends React.Component {
-	constructor() {
-		super();
+export default class SvelteComponent extends React.PureComponent {
+  container = React.createRef()
+  instance = null
+  fragment = null
 
-		this.container = React.createRef();
-		this.instance = null;
-		this.div = React.createElement('div', { ref: this.container });
-	}
+  componentDidMount() {
+    React.createElement('fragment', { ref: this.container })
+    const { this: Constructor, ...props } = this.props
 
-	componentDidMount() {
-		const { this: Constructor, ...props } = this.props;
+    this.instance = new Constructor({
+      target: this.container.current,
+      props
+    })
+  }
 
-		this.instance = new Constructor({
-			target: this.container.current,
-			props
-		});
-	}
+  componentDidUpdate() {
+    this.instance.$set(this.props)
+  }
 
-	componentDidUpdate() {
-		this.instance.$set(this.props);
-	}
+  componentWillUnmount() {
+    this.instance.$destroy()
+  }
 
-	componentWillUnmount() {
-		this.instance.$destroy();
-	}
-
-	render() {
-		return this.div;
-	}
+  render() {
+    return this.fragment
+  }
 }
